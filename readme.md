@@ -226,6 +226,94 @@
     ```
 - 연기된 함수 호출들은 스택에 쌓임 (후입선출)
 
+## Pointers
+- Go는 포인터를 지원함
+- 포인터 산술은 지원하지 않음 + 메모리 주소 직접 대입 지원하지 않음
+- 포인터의 zero value은 nil(Go에서는 NULL을 nil로 사용)
+- 역참조(*) 사용해 주소의 값 
+  ```go
+  var numPtr1 *int // 빈 포인터
+  var numPtr2 *int = new(int) // 메모리 할당
+  
+  num := 3
+  numPtr1 = &num
+  
+  fmt.Println(*numPtr1)
+  ```
+
+## Structs
+- 필드의 집합체 (1)
+- 구조체의 필드는 .(dot)으로 접근할 수 있음 (2)
+- 구조체 포인터를 통해서 구조체 필드를 접근할 수 있음 (3)
+  ```go
+  type Vertex struct { // (1)
+	X int
+    Y int
+  }
+  
+  func main() { 
+    v := Vertex{1, 2}
+    v.X = 4 // (2)
+  
+    p := &v // (3)
+    p.X = 1e9
+  }
+  ```
+
+~~- Struct Literals~~
+  - ~~왜 필요한지 모르겠으니 쓸 일 있으면 다시 보자~~
+
+## Arrays
+- 선언 형식
+  ```go
+  var num1 [5]int
+  var num2 = [5]int{1, 4, 6, 8, 9, 10}
+  num3 := [5]int{2, 3, 5, 7, 11, 13}
+  ```
+## Slices
+- 동적 배열이라고 생각하자
+- 연속된 메모리 공간에 동일한 타입의 데이터를 순차적으로 저장할 때 사용
+- 길이가 고정적인 배열과 다른게 길이를 유동적으로 다룰 수 있음
+- 배열은 길이의 변경이 필요할 때마다 새로운 길이를 가진 배열을 다시 할당하는 비효율적인 작업을 해야함
+  - slice는 길이의 변경에 대비해 미리 특정 용량을 가진 배열을 할당해두고, 정해진 길이 만큼만 사용할 수 있도록 하여, 길이의 수정 만으로 배열을 재할당할 필요 없이 유동적으로 다룰 수 있도록 하는 것
+
+#### Slice length and capacity
+  - 슬리이스는 _length(길이)_ 와 _capacity(용량)_ 둘 다 보유함
+  - 길이 : 슬라이스에 포함된 요소의 개수, len(s)
+  - 용량 : 기본 배열의 요소 개수, cap(s)
+
+#### Slice 생성
+- 초기화하지 않은 slice는 len과 cap이 0인 nil slice가 됨
+  - make와 리터럴로 초기화된 slice는 len과 cap이 0이어도 nil 아님
+- make(type, len, cap) (용량 지정)
+  ```go
+  slice1 := make([]int, 5, 10)
+  ```
+- slice 리터럴 (용량 생략)
+  ```go
+  slice2 := []int{1, 2, 3, 4, 5}  
+  ```
+
+#### Slicing
+- Go에서는 배열의 slice의 특정 영역을 slice 형태로 추출할 수 있도록 slicing 기능 제공
+- slice는 어떤 데이터도 저장할 수 없음 단지 기본 배열(or slice)의 한 영역을 나타낼 뿐
+- 그래서, slice의 요소를 변경하면 기본 배열(or slice)의 해당 요소가 수정됨
+  ```go
+  num := [5]int{1, 2, 3, 4, 5}
+  num_slice := num[2:]
+  num_slice[1] = 10
+  fmt.Println(num, num_slice)
+  // num : [1, 2, 3, 10, 5]
+  // num_slice : [3, 10, 5] 
+  ```
+
+#### Append Slice
+- slice에 값 추가
+- **용량 값에 따라 다르게 동작**
+  - slice의 용량이 새로운 요소들을 추가하기 충분하면 메모리를 공유하고 길이가 다른 slice 생성
+  - 용량이 충분하지 않으면 상황에 따라 최적화 된 용량을 가진 slice를 생성
+    - 이 slice는 기존 slice와 메모리를 공유하지 않음
+
 ## etc
 - factored import 문 : import를 그룹 짓는
 
